@@ -88,7 +88,8 @@ jobs:
             --dont-check-for-updates \
             --on-finish 'exit' \
             --no-images \
-            --fast \
+            --superfast \
+            --skip-unusual \
             --google-sheet google_sheets_credentials.json google_sheets_token.json ${{ secrets.GOOGLE_SHEETS_SHEET_ID }} ${{ secrets.GOOGLE_SHEETS_TAB_NAME }}
 
 
