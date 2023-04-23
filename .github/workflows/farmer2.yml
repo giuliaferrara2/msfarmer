@@ -1,0 +1,108 @@
+name: farmer2
+on:
+  workflow_dispatch:
+    inputs:
+      accounts_ondemand:
+        description: 'Enter the accounts, separated by commas'
+  schedule:
+    - cron: '40 9 * * *'
+  #  #- cron: '30 8,11 * * *' #Runs at 8:30 and 11:30 UTC everyday
+
+jobs:
+  # define matrix for all executions
+  # ------------------------
+  DefineMatrix:
+    runs-on: ubuntu-latest
+    outputs:
+      accounts: ${{ steps.get-accounts.outputs.IDs }}
+    steps:
+    - name: Get Accounts
+      id: get-accounts
+      env:
+        accounts_ondemand: ${{ inputs.accounts_ondemand }}
+      run: |
+        if [ -z "$accounts_ondemand" ]; then
+          echo "The accounts input is empty."
+          echo $(echo ${{ secrets.MATRIX }} | base64 --decode) > originalData.json
+          echo 'IDs<<EOF' >> $GITHUB_OUTPUT
+          jq '[.[] | select(.affinity=="19") | { the_id: .id }]' originalData.json >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+          rm -f originalData.json
+        else
+          array=($(echo "$accounts_ondemand" | tr ',' '\n'))
+          echo "array=$(echo ${array[@]})" >> $GITHUB_OUTPUT
+          json="["
+          for i in ${!array[@]}; do
+            json=$json"{\"the_id\":\""${array[i]}"\"},"
+          done
+          json=${json%,}
+          json=$json"]"
+          echo 'IDs<<EOF' >> $GITHUB_OUTPUT
+          echo $json >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+        fi
+  # ------------------------
+  # deploy a container for the job
+  wasabi:
+    name: Run container
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs:
+      - DefineMatrix
+    strategy:
+      matrix:
+        account: ${{ fromJSON(needs.DefineMatrix.outputs.accounts) }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Set Secrets
+      id: sets-secrets
+      run: |
+        echo ${{ matrix.account.the_id }}
+        echo $(echo ${{ secrets.MATRIX }} | base64 --decode) > originalData.json
+        the_user=$(jq '.[] | select(.id=="${{ matrix.account.the_id }}") | .user' originalData.json)
+        the_pass=$(jq '.[] | select(.id=="${{ matrix.account.the_id }}") | .pass' originalData.json)
+        echo "::add-mask::$the_user"
+        echo "::add-mask::$the_pass"
+        echo '[{ "username": '$the_user', "password": '$the_pass' }]' > accounts.json
+        rm -f originalData.json
+        unset the_user
+        unset the_pass
+
+    - name: Run script
+      run: |
+        echo "$(date) | INFO  | Configuring wasabi..."   
+        echo $(echo ${{ secrets.GOOGLE_SHEETS_CREDENTIALS_B64 }} | base64 --decode) > google_sheets_credentials.json
+        echo $(echo ${{ secrets.GOOGLE_SHEETS_TOKEN_B64 }} | base64 --decode) > google_sheets_token.json
+        echo "$(date) | INFO  | Starting wasabi"      
+        python ms_rewards_farmer.py \
+            --headless \
+            --dont-check-for-updates \
+            --on-finish 'exit' \
+            --no-images \
+            --superfast \
+            --google-sheet google_sheets_credentials.json google_sheets_token.json ${{ secrets.GOOGLE_SHEETS_SHEET_ID }} ${{ secrets.GOOGLE_SHEETS_TAB_NAME }}
+
+
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs:
+      - wasabi
+    steps:
+    - name: Notify to Telegram
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_USERID }}
+        token: ${{ secrets.TELEGRAM_API_TOKEN }}
+        message: |
+          Job for account 19 was executed!
