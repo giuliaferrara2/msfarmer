@@ -25,7 +25,7 @@ jobs:
           echo "The accounts input is empty."
           echo $(echo ${{ secrets.MATRIX }} | base64 --decode) > originalData.json
           echo 'IDs<<EOF' >> $GITHUB_OUTPUT
-          jq '[.[] | select(.affinity=="19") | { the_id: .id }]' originalData.json >> $GITHUB_OUTPUT
+          jq '[.[] | select(.affinity=="12") | { the_id: .id }]' originalData.json >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
           rm -f originalData.json
         else
@@ -88,7 +88,7 @@ jobs:
             --dont-check-for-updates \
             --on-finish 'exit' \
             --no-images \
-            --superfast \
+            --fast \
             --google-sheet google_sheets_credentials.json google_sheets_token.json ${{ secrets.GOOGLE_SHEETS_SHEET_ID }} ${{ secrets.GOOGLE_SHEETS_TAB_NAME }}
 
 
@@ -105,4 +105,4 @@ jobs:
         to: ${{ secrets.TELEGRAM_USERID }}
         token: ${{ secrets.TELEGRAM_API_TOKEN }}
         message: |
-          Job for account 19 was executed!
+          Job for account 12 was executed!
