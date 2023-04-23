@@ -4,8 +4,8 @@ on:
     inputs:
       accounts_ondemand:
         description: 'Enter the accounts, separated by commas'
-  schedule:
-    - cron: '40 9 * * *'
+  #schedule:
+  #  - cron: '40 9 * * *'
   #  #- cron: '30 8,11 * * *' #Runs at 8:30 and 11:30 UTC everyday
 
 jobs:
