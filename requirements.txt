@@ -14,3 +14,7 @@ notifiers
 pyvirtualdisplay
 webdriver-manager>=3.8.5
 undetected-chromedriver
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
