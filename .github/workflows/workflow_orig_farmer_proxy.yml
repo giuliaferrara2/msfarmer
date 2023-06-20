@@ -32,7 +32,7 @@ jobs:
           echo "The accounts input is empty."
           echo $(echo ${{ secrets.MATRIX }} | base64 --decode) > originalData.json
           echo 'IDs<<EOF' >> $GITHUB_OUTPUT
-          jq '[.[] | select(.affi=="1") | { the_id: .id }]' originalData.json >> $GITHUB_OUTPUT
+          jq '[.[] | select(.affinity=="1") | { the_id: .id }]' originalData.json >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
           rm -f originalData.json
         else
