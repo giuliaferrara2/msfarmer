@@ -1,0 +1,16 @@
+certifi
+chardet
+idna
+requests
+selenium==4.4.3
+selenium-stealth
+urllib3
+ipapi
+func_timeout
+random-word==1.0.7
+pyyaml
+pyotp
+notifiers
+pyvirtualdisplay
+webdriver-manager>=3.8.5
+undetected-chromedriver
