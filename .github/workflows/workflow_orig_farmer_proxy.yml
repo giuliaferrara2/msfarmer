@@ -5,8 +5,8 @@ on:
       accounts_ondemand:
         description: 'Enter the accounts, separated by commas'
   schedule:
-    - cron: '__cron__'
-    #- cron: '30 8,11 * * *' #Runs at 8:30 and 11:30 UTC everyday
+    #- cron: '__cron__'
+    - cron: '30 8,11 * * *' #Runs at 8:30 and 11:30 UTC everyday
 
 jobs:
   # define matrix for all executions
@@ -22,7 +22,7 @@ jobs:
         to: ${{ secrets.TELEGRAM_USERID }}
         token: ${{ secrets.TELEGRAM_API_TOKEN }}
         message: |
-          Job for account __affinity__ - __account__ starting!
+          Job for account starting!
     - name: Get Accounts
       id: get-accounts
       env:
@@ -32,7 +32,7 @@ jobs:
           echo "The accounts input is empty."
           echo $(echo ${{ secrets.MATRIX }} | base64 --decode) > originalData.json
           echo 'IDs<<EOF' >> $GITHUB_OUTPUT
-          jq '[.[] | select(.affi=="__affinity__") | { the_id: .id }]' originalData.json >> $GITHUB_OUTPUT
+          jq '[.[] | select(.affi=="1") | { the_id: .id }]' originalData.json >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
           rm -f originalData.json
         else
@@ -134,4 +134,4 @@ jobs:
         to: ${{ secrets.TELEGRAM_USERID }}
         token: ${{ secrets.TELEGRAM_API_TOKEN }}
         message: |
-          Job for account __affinity__ - __account__ was executed!
+          Job for account was executed!
