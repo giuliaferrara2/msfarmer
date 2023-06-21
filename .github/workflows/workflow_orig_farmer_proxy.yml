@@ -6,7 +6,7 @@ on:
         description: 'Enter the accounts, separated by commas'
   schedule:
     #- cron: '__cron__'
-    - cron: '30 8,11 * * *' #Runs at 8:30 and 11:30 UTC everyday
+    #- cron: '30 8,11 * * *' #Runs at 8:30 and 11:30 UTC everyday
 
 jobs:
   # define matrix for all executions
