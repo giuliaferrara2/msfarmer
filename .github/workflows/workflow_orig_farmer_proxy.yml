@@ -98,7 +98,7 @@ jobs:
         echo "::add-mask::$the_port"
         echo '[{ "username": '$the_user', "password": '$the_pass' }]' > accounts.json
         sed -i 's/__proxy__/http  '$the_host'  '$the_port'  ${{ secrets.PROXY_USER }}  ${{ secrets.PROXY_PASS }}/' proxychains.conf
-        #cat proxychains.conf
+        cat proxychains.conf
 
         rm -f originalData.json
         unset the_user
