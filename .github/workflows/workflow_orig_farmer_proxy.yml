@@ -4,9 +4,9 @@ on:
     inputs:
       accounts_ondemand:
         description: 'Enter the accounts, separated by commas'
-  #schedule:
+  schedule:
     #- cron: '__cron__'
-    #- cron: '30 8,11 * * *' #Runs at 8:30 and 11:30 UTC everyday
+    - cron: '30 8,11 * * *' #Runs at 8:30 and 11:30 UTC everyday
 
 jobs:
   # define matrix for all executions
@@ -119,6 +119,7 @@ jobs:
             --on-finish 'exit' \
             --no-images \
             --superfast \
+            --skip-shopping \
             --google-sheet google_sheets_credentials.json google_sheets_token.json ${{ secrets.GOOGLE_SHEETS_SHEET_ID }} ${{ secrets.GOOGLE_SHEETS_TAB_NAME }}
 
   notify:
